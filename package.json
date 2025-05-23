@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "App para publicar automáticamente el mismo reel todos los días en Instagram",
   "main": "src/server.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
@@ -12,10 +15,17 @@
     "instagram",
     "automation",
     "reels",
-    "daily"
+    "daily",
+    "social-media",
+    "content-scheduler",
+    "meta-api",
+    "instagram-automation",
+    "video-publishing",
+    "scheduling",
+    "creator-tools"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "ferecece",
+  "license": "GPL-3.0",
   "dependencies": {
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",

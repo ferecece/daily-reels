@@ -7,6 +7,8 @@ Tu asistente para publicar reels diarios en Instagram con horarios configurables
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 
+![Screenshot de DailyReels](./public/img/screenshot.png)
+
 ## Tabla de Contenidos
 
 - [Descripción](#descripción)
@@ -40,7 +42,7 @@ El sistema utiliza la Graph API v22.0 de Facebook/Instagram y ofrece una interfa
 
 ## Requisitos Previos
 
-- Node.js 14 o superior
+- Node.js 22.0 o superior
 - Cuenta de Instagram Business o Creator conectada a una página de Facebook
 - Aplicación de desarrollador en Meta for Developers con los permisos necesarios
 - Servidor público para alojar la aplicación (los hooks de Instagram requieren una URL pública)
@@ -234,8 +236,4 @@ npm run dev
 
 ## Licencia
 
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
-
----
-
-Desarrollado con ❤️ para creadores de contenido diario. 
+Este proyecto está licenciado bajo la Licencia GPLv3 - ver el archivo LICENSE para más detalles.
