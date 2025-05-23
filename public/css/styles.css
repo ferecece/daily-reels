@@ -1,0 +1,515 @@
+/* Estilos para DailyReels - Versión Elegante con Modo Oscuro y Efectos */
+
+:root {
+  --primary-color: #7b2cbf;
+  --primary-dark: #5a189a;
+  --primary-light: #9d4edd;
+  --accent-color: #ff6b6b;
+  --accent-dark: #ee5253;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --light-bg: #f8f9fa;
+  --light-card: #ffffff;
+  --light-text: #212529;
+  --dark-bg: #121212;
+  --dark-card: #1e1e1e;
+  --dark-card-header: #2d2d2d;
+  --dark-text: #f0f0f0;
+  --dark-input: #333333;
+  --dark-input-border: #555555;
+  --dark-input-text: #e0e0e0;
+  --transition-speed: 0.3s;
+}
+
+/* Estilos generales y modo oscuro */
+body {
+  background-color: var(--light-bg);
+  color: var(--light-text);
+  font-family: 'Poppins', sans-serif;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.dark-mode {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+/* Header y logo */
+.app-header {
+  padding: 2rem 0;
+  position: relative;
+}
+
+.app-title {
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+  font-size: 2.5rem;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-switch {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--primary-color);
+  transition: transform 0.3s ease;
+}
+
+.theme-switch:hover {
+  transform: rotate(30deg);
+}
+
+/* Tarjetas y contenedores */
+.card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color var(--transition-speed);
+  background-color: var(--light-card);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+.dark-mode .card {
+  background-color: var(--dark-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.dark-mode .card-header {
+  background: linear-gradient(135deg, var(--primary-dark), #3c096c);
+}
+
+.card-body {
+  padding: 1.5rem;
+  position: relative;
+}
+
+/* Badges y estados */
+.badge {
+  padding: 0.5em 0.8em;
+  border-radius: 50px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.badge-glitch {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-glitch::before, .badge-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+}
+
+.badge-glitch::before {
+  left: 2px;
+  text-shadow: -1px 0 #00ffff;
+  animation: glitch-1 2s linear infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  opacity: 0.8;
+}
+
+.badge-glitch::after {
+  left: -2px;
+  text-shadow: 1px 0 #ff00ff;
+  animation: glitch-2 3s linear infinite;
+  clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+  opacity: 0.8;
+}
+
+/* Formularios e inputs */
+.form-control, .form-select {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .form-control, .dark-mode .form-select {
+  background-color: var(--dark-input);
+  border-color: var(--dark-input-border);
+  color: var(--dark-input-text);
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.2);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .form-control:focus, .dark-mode .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.4);
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+/* Inputs de tiempo con estilo personalizado */
+input[type="time"] {
+  position: relative;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  appearance: auto; /* Restablecer a apariencia predeterminada */
+  -webkit-appearance: auto; /* Restablecer a apariencia predeterminada */
+}
+
+/* Eliminar el estilo del grupo de tiempo con el icono */
+.time-group {
+  position: relative;
+}
+
+/* Eliminar el pseudo-elemento que agrega el icono de reloj */
+/* .time-group::after {
+  content: '⏰';
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 2;
+} */
+
+/* Botones */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease-out;
+  pointer-events: none;
+}
+
+.btn:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  transition: 0s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(123, 44, 191, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color), #27ae60);
+  border: none;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #27ae60, var(--success-color));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--warning-color), #e67e22);
+  border: none;
+  color: white;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e67e22, var(--warning-color));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
+}
+
+/* Efecto de pulso para el botón de publicar */
+.pulse-btn {
+  animation: pulse 2s infinite;
+}
+
+/* Contenedor de alertas */
+#alert-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: 350px;
+  z-index: 1050;
+}
+
+#alert-container .alert {
+  margin-bottom: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  border: none;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  animation: slide-in 0.3s ease forwards;
+}
+
+.dark-mode #alert-container .alert {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.alert-success {
+  border-left: 4px solid var(--success-color);
+}
+
+.alert-danger {
+  border-left: 4px solid var(--danger-color);
+}
+
+/* Spinner y estados de carga */
+.spinner-border {
+  border-width: 2px;
+}
+
+.spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--primary-light);
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: spinner 1.5s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.dark-mode .loader {
+  border-color: var(--primary-light);
+  border-bottom-color: transparent;
+}
+
+/* Animaciones */
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { transform: none; opacity: 1; }
+  41.99% { transform: none; opacity: 1; }
+  42% { transform: translateX(-2px); opacity: 0.8; }
+  43% { transform: none; opacity: 1; }
+  46.99% { transform: none; opacity: 1; }
+  47% { transform: translateX(2px); opacity: 0.8; }
+  48% { transform: none; opacity: 1; }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: none; opacity: 1; }
+  64.99% { transform: none; opacity: 1; }
+  65% { transform: translateX(2px); opacity: 0.8; }
+  66% { transform: none; opacity: 1; }
+  73.99% { transform: none; opacity: 1; }
+  74% { transform: translateX(-2px); opacity: 0.8; }
+  75% { transform: none; opacity: 1; }
+}
+
+/* Efecto glitch del título */
+.glitch-title {
+  position: relative;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.dark-mode .glitch-title {
+  color: var(--primary-light);
+}
+
+.glitch-title::before,
+.glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-title::before {
+  left: 2px;
+  text-shadow: -1px 0 var(--accent-color);
+  animation: glitch-1 3s infinite linear alternate-reverse;
+}
+
+.glitch-title::after {
+  left: -2px;
+  text-shadow: 1px 0 var(--primary-light);
+  animation: glitch-2 2s infinite linear alternate-reverse;
+}
+
+/* Footer */
+footer {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  color: #888;
+  transition: color var(--transition-speed);
+}
+
+.dark-mode footer {
+  color: #666;
+}
+
+/* Responsive ajustes */
+@media (max-width: 767.98px) {
+  #alert-container {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+  
+  .row > div {
+    margin-bottom: 1rem;
+  }
+  
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* Líneas de fondo estilo Matrix */
+.matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.03;
+}
+
+.dark-mode .matrix-bg {
+  opacity: 0.07;
+}
+
+/* Añadir estilos para la parte destacada del logo */
+.highlight-text {
+  position: relative;
+  color: var(--accent-color);
+  -webkit-text-fill-color: var(--accent-color);
+}
+
+.highlight-text::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 3px;
+  animation: pulse 2s infinite;
+}
+
+.dark-mode .app-title {
+  background: linear-gradient(90deg, var(--primary-light), #c77dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark-mode .highlight-text {
+  -webkit-text-fill-color: var(--accent-color);
+} 

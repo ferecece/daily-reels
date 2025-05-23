@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyReels • Tu publicador automático</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      padding-top: 60px;
+      padding-bottom: 40px;
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 800px;
+    }
+    .card {
+      margin-bottom: 20px;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .btn-instagram {
+      background-color: #E1306C;
+      color: white;
+    }
+    .btn-instagram:hover {
+      background-color: #C13584;
+      color: white;
+    }
+    .status-indicator {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .status-connected {
+      background-color: #28a745;
+    }
+    .status-disconnected {
+      background-color: #dc3545;
+    }
+    .publish-now-btn {
+      margin-top: 20px;
+    }
+    .spinner-border {
+      margin-right: 5px;
+      width: 1rem;
+      height: 1rem;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas para efecto Matrix en el fondo -->
+  <canvas id="matrix-canvas" class="matrix-bg"></canvas>
+  
+  <!-- Botón de cambio de tema -->
+  <button id="theme-toggle" class="theme-switch" title="Cambiar tema">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <div class="container mt-4">
+    <header class="text-center mb-5 app-header">
+      <h1 class="app-title">Daily<span class="highlight-text">Reels</span></h1>
+      <p class="lead mt-3">Tu asistente para <span class="text-accent">publicar reels diarios</span> en Instagram</p>
+    </header>
+
+    <div class="row">
+      <!-- Panel de estado -->
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="h5 mb-0"><i class="fas fa-chart-line me-2"></i>Tu Panel de Control</h2>
+          </div>
+          <div class="card-body">
+            <div id="status-loading" class="spinner-container">
+              <div class="loader"></div>
+              <p class="mt-2">Preparando tu panel...</p>
+            </div>
+            
+            <div id="status-content" class="d-none">
+              <div class="mb-3">
+                <strong><i class="fab fa-instagram me-2"></i>Tu cuenta:</strong>
+                <span id="instagram-status" class="badge"></span>
+                <span id="instagram-username"></span>
+              </div>
+              
+              <div class="mb-3">
+                <strong><i class="far fa-calendar-alt me-2"></i>Hoy es:</strong>
+                <span id="current-day"></span>
+              </div>
+              
+              <div class="mb-3">
+                <strong><i class="fas fa-globe-americas me-2"></i>Tu zona horaria:</strong>
+                <span id="timezone"></span>
+              </div>
+              
+              <div class="mb-3">
+                <strong><i class="fas fa-history me-2"></i>Tu último reel:</strong>
+                <span id="last-publication"></span>
+              </div>
+              
+              <div class="mb-3">
+                <strong><i class="far fa-clock me-2"></i>Tu próximo reel:</strong>
+                <span id="next-publication"></span>
+              </div>
+              
+              <div class="d-grid gap-2 mt-4">
+                <button id="publish-now-btn" class="btn btn-success pulse-btn">
+                  <i class="fas fa-paper-plane me-2"></i>¡Publicar ahora!
+                </button>
+                <button id="reconnect-btn" class="btn btn-warning d-none">
+                  <i class="fas fa-sync-alt me-2"></i>Reconectar Instagram
+                </button>
+                <button id="connect-btn" class="btn btn-primary d-none">
+                  <i class="fab fa-instagram me-2"></i>Conectar con Instagram
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Panel de configuración -->
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="h5 mb-0"><i class="fas fa-cog me-2"></i>Personaliza tus Reels</h2>
+          </div>
+          <div class="card-body">
+            <form id="settings-form">
+              <div class="mb-3">
+                <label for="video-url" class="form-label">
+                  <i class="fas fa-film me-2"></i>URL de tu video
+                </label>
+                <input type="url" class="form-control" id="video-url" required>
+                <div class="form-text">Enlace a tu video en Cloudinary, Google Drive, etc.</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="caption" class="form-label">
+                  <i class="fas fa-comment-alt me-2"></i>Tu texto para el reel
+                </label>
+                <textarea class="form-control" id="caption" rows="3" required></textarea>
+                <div class="form-text">Usa %d para mostrar el número del día en tu texto</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="timezone" class="form-label">
+                  <i class="fas fa-globe me-2"></i>¿Dónde estás?
+                </label>
+                <select class="form-select" id="timezone" required>
+                  <option value="America/Santiago">Santiago (GMT-4)</option>
+                  <option value="America/Argentina/Buenos_Aires">Buenos Aires (GMT-3)</option>
+                  <option value="America/Bogota">Bogotá (GMT-5)</option>
+                  <option value="America/Mexico_City">Ciudad de México (GMT-6)</option>
+                  <option value="America/Lima">Lima (GMT-5)</option>
+                  <option value="Europe/Madrid">Madrid (GMT+1)</option>
+                </select>
+              </div>
+              
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="far fa-clock me-2"></i>¿Cuándo publicar tus reels?
+                </label>
+                
+                <!-- Horarios por día de la semana -->
+                <div class="row mb-2">
+                  <div class="col-md-4 mb-2">
+                    <label for="monday-time" class="form-label small">Lunes</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="monday-time" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label for="tuesday-time" class="form-label small">Martes</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="tuesday-time" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label for="wednesday-time" class="form-label small">Miércoles</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="wednesday-time" required>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row mb-2">
+                  <div class="col-md-4 mb-2">
+                    <label for="thursday-time" class="form-label small">Jueves</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="thursday-time" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label for="friday-time" class="form-label small">Viernes</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="friday-time" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <label for="saturday-time" class="form-label small">Sábado</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="saturday-time" required>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-4 mb-2">
+                    <label for="sunday-time" class="form-label small">Domingo</label>
+                    <div class="time-group">
+                      <input type="time" class="form-control" id="sunday-time" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Guardar mis ajustes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mensajes de alerta -->
+    <div id="alert-container"></div>
+  </div>
+
+  <footer class="text-center mt-4 mb-4">
+    <p>&copy; 2025 DailyReels - Tu aliado para contenido diario <i class="fas fa-code ms-2"></i></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // URL base de la API
+    const API_BASE_URL = '';
+    
+    // Cambio de tema
+    function setupThemeToggle() {
+      const themeToggle = document.getElementById('theme-toggle');
+      const icon = themeToggle.querySelector('i');
+      
+      // Verificar si hay preferencia guardada
+      const isDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        // Cambiar icono
+        if (isDark) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
+        
+        // Guardar preferencia
+        localStorage.setItem('darkMode', isDark);
+      });
+    }
+    
+    // Efecto Matrix en el fondo
+    function setupMatrixEffect() {
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Ajustar tamaño del canvas
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      // Caracteres para mostrar (letras, números y símbolos)
+      const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+      
+      // Tamaño de la fuente y número de columnas
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+      
+      // Array para seguir la posición Y de cada columna
+      const drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * canvas.height;
+      }
+      
+      // Función para dibujar efecto Matrix
+      function drawMatrix() {
+        // Fondo semitransparente para crear el efecto de desvanecimiento
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Color y fuente para los caracteres
+        ctx.fillStyle = '#0F0';
+        ctx.font = `${fontSize}px monospace`;
+        
+        // Dibujar caracteres
+        for (let i = 0; i < drops.length; i++) {
+          // Carácter aleatorio
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          
+          // Dibujar el carácter
+          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+          
+          // Reiniciar la columna si llega al final o aleatoriamente
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          
+          // Mover hacia abajo
+          drops[i]++;
+        }
+      }
+      
+      // Actualizar el canvas cuando cambie el tamaño de la ventana
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Reiniciar las columnas
+        for (let i = 0; i < Math.floor(canvas.width / fontSize); i++) {
+          drops[i] = Math.random() * canvas.height;
+        }
+      });
+      
+      // Animar
+      setInterval(drawMatrix, 50);
+    }
+    
+    // Cargar estado
+    async function loadStatus() {
+      try {
+        document.getElementById('status-loading').classList.remove('d-none');
+        document.getElementById('status-content').classList.add('d-none');
+        
+        const response = await fetch(`${API_BASE_URL}/status`);
+        const data = await response.json();
+        
+        // Actualizar elementos de la interfaz
+        const instagramStatus = document.getElementById('instagram-status');
+        const instagramUsername = document.getElementById('instagram-username');
+        const currentDay = document.getElementById('current-day');
+        const timezone = document.getElementById('timezone');
+        const lastPublication = document.getElementById('last-publication');
+        const nextPublication = document.getElementById('next-publication');
+        const reconnectBtn = document.getElementById('reconnect-btn');
+        const connectBtn = document.getElementById('connect-btn');
+        const publishNowBtn = document.getElementById('publish-now-btn');
+        
+        if (data.connected) {
+          instagramStatus.textContent = 'Conectada';
+          instagramStatus.className = 'badge bg-success';
+          instagramUsername.textContent = ` (${data.username})`;
+          reconnectBtn.classList.add('d-none');
+          connectBtn.classList.add('d-none');
+          publishNowBtn.disabled = false;
+        } else {
+          instagramStatus.textContent = 'No conectada';
+          instagramStatus.className = 'badge bg-danger';
+          instagramUsername.textContent = '';
+          connectBtn.classList.remove('d-none');
+          publishNowBtn.disabled = true;
+        }
+        
+        currentDay.textContent = data.currentDay || 'No disponible';
+        timezone.textContent = data.timezone || 'America/Santiago';
+        
+        // Manejar la fecha de última publicación - simplemente mostrar el valor original
+        if (data.lastPublication) {
+          // Mostrar la fecha tal como viene del servidor
+          lastPublication.textContent = data.lastPublication;
+          console.log('Fecha última publicación (original):', data.lastPublication);
+        } else {
+          lastPublication.textContent = 'Aún no has publicado';
+        }
+        
+        // Manejar la fecha de próxima publicación - simplemente mostrar el valor original
+        if (data.nextPublication) {
+          // Mostrar la fecha tal como viene del servidor
+          nextPublication.textContent = data.nextPublication;
+          console.log('Fecha próxima publicación (original):', data.nextPublication);
+        } else {
+          nextPublication.textContent = 'No programado';
+        }
+        
+        document.getElementById('status-loading').classList.add('d-none');
+        document.getElementById('status-content').classList.remove('d-none');
+      } catch (error) {
+        showAlert('error', '¡Ups! No pudimos cargar tu información');
+        console.error('Error al cargar estado:', error);
+        
+        // Mostrar contenido para permitir interacción incluso con error
+        document.getElementById('status-loading').classList.add('d-none');
+        document.getElementById('status-content').classList.remove('d-none');
+      }
+    }
+    
+    // Cargar configuración
+    async function loadSettings() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/settings`);
+        const data = await response.json();
+        
+        // Actualizar el formulario con los valores actuales
+        document.getElementById('video-url').value = data.videoUrl || '';
+        document.getElementById('caption').value = data.caption || 'Día %d - Mi contenido diario';
+        document.getElementById('timezone').value = data.timezone || 'America/Santiago';
+        
+        // Establecer horarios por día
+        if (data.schedules) {
+          document.getElementById('monday-time').value = data.schedules.monday || '09:00';
+          document.getElementById('tuesday-time').value = data.schedules.tuesday || '09:00';
+          document.getElementById('wednesday-time').value = data.schedules.wednesday || '09:00';
+          document.getElementById('thursday-time').value = data.schedules.thursday || '09:00';
+          document.getElementById('friday-time').value = data.schedules.friday || '09:00';
+          document.getElementById('saturday-time').value = data.schedules.saturday || '09:00';
+          document.getElementById('sunday-time').value = data.schedules.sunday || '09:00';
+        }
+        
+        // Aplicar efectos visuales después de cargar los datos
+        addInputEffects();
+      } catch (error) {
+        showAlert('error', '¡Ups! No pudimos cargar tus ajustes');
+        console.error('Error al cargar configuración:', error);
+      }
+    }
+    
+    // Añadir efectos visuales a los inputs
+    function addInputEffects() {
+      // Efecto para los campos de texto al enfocar
+      document.querySelectorAll('.form-control, .form-select').forEach(input => {
+        input.addEventListener('focus', () => {
+          input.parentElement.classList.add('input-focus');
+        });
+        
+        input.addEventListener('blur', () => {
+          input.parentElement.classList.remove('input-focus');
+        });
+      });
+    }
+    
+    // Guardar configuración
+    async function saveSettings(event) {
+      event.preventDefault();
+      
+      try {
+        const videoUrl = document.getElementById('video-url').value;
+        const caption = document.getElementById('caption').value;
+        const timezone = document.getElementById('timezone').value;
+        
+        // Recopilar horarios por día
+        const schedules = {
+          monday: document.getElementById('monday-time').value,
+          tuesday: document.getElementById('tuesday-time').value,
+          wednesday: document.getElementById('wednesday-time').value,
+          thursday: document.getElementById('thursday-time').value,
+          friday: document.getElementById('friday-time').value,
+          saturday: document.getElementById('saturday-time').value,
+          sunday: document.getElementById('sunday-time').value
+        };
+        
+        // Añadir animación al botón
+        const saveBtn = document.querySelector('#settings-form button[type="submit"]');
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+        saveBtn.disabled = true;
+        
+        const response = await fetch(`${API_BASE_URL}/settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            videoUrl,
+            caption,
+            timezone,
+            schedules
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Animación de éxito
+          saveBtn.innerHTML = '<i class="fas fa-check me-2"></i>¡Listo!';
+          setTimeout(() => {
+            saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Guardar mis ajustes';
+            saveBtn.disabled = false;
+          }, 1500);
+          
+          showAlert('success', '¡Tus ajustes han sido guardados!');
+          loadStatus(); // Recargar el estado para reflejar los cambios
+        } else {
+          saveBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error';
+          setTimeout(() => {
+            saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Guardar mis ajustes';
+            saveBtn.disabled = false;
+          }, 1500);
+          
+          showAlert('error', `¡Ups! ${data.error || 'No pudimos guardar tus ajustes'}`);
+        }
+      } catch (error) {
+        showAlert('error', '¡Ups! Algo falló al guardar tus ajustes');
+        console.error('Error al guardar configuración:', error);
+        
+        // Restaurar botón
+        const saveBtn = document.querySelector('#settings-form button[type="submit"]');
+        saveBtn.innerHTML = '<i class="fas fa-save me-2"></i>Guardar mis ajustes';
+        saveBtn.disabled = false;
+      }
+    }
+    
+    // Publicar ahora
+    async function publishNow() {
+      try {
+        const publishBtn = document.getElementById('publish-now-btn');
+        publishBtn.disabled = true;
+        publishBtn.classList.remove('pulse-btn');
+        publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publicando...';
+        
+        const response = await fetch(`${API_BASE_URL}/status/publish-now`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          publishBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>¡Reel enviado!';
+          
+          setTimeout(() => {
+            publishBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>¡Publicar ahora!';
+            publishBtn.disabled = false;
+            publishBtn.classList.add('pulse-btn');
+          }, 2000);
+          
+          showAlert('success', '¡Tu reel se está publicando! Esto puede tardar un momento.');
+        } else {
+          publishBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error';
+          
+          setTimeout(() => {
+            publishBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>¡Publicar ahora!';
+            publishBtn.disabled = false;
+            publishBtn.classList.add('pulse-btn');
+          }, 2000);
+          
+          showAlert('error', `¡Ups! ${data.error || 'No pudimos publicar tu reel'}`);
+        }
+      } catch (error) {
+        showAlert('error', '¡Ups! Algo falló al intentar publicar');
+        console.error('Error al publicar:', error);
+        
+        const publishBtn = document.getElementById('publish-now-btn');
+        publishBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>¡Publicar ahora!';
+        publishBtn.disabled = false;
+        publishBtn.classList.add('pulse-btn');
+      }
+    }
+    
+    // Conectar con Instagram
+    function connectWithInstagram() {
+      const connectBtn = document.getElementById('connect-btn');
+      connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Conectando...';
+      window.location.href = `${API_BASE_URL}/auth/instagram`;
+    }
+    
+    // Mostrar alertas
+    function showAlert(type, message) {
+      const alertContainer = document.getElementById('alert-container');
+      const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+      
+      const alertElement = document.createElement('div');
+      alertElement.className = `alert ${alertClass} alert-dismissible fade show`;
+      alertElement.role = 'alert';
+      alertElement.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      `;
+      
+      alertContainer.appendChild(alertElement);
+      
+      // Eliminar la alerta después de 5 segundos
+      setTimeout(() => {
+        alertElement.classList.remove('show');
+        setTimeout(() => alertElement.remove(), 300);
+      }, 5000);
+    }
+    
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+      // Configurar el cambio de tema
+      setupThemeToggle();
+      
+      // Iniciar efecto Matrix
+      setupMatrixEffect();
+      
+      // Cargar datos iniciales
+      loadStatus();
+      loadSettings();
+      
+      // Event listeners
+      document.getElementById('settings-form').addEventListener('submit', saveSettings);
+      document.getElementById('publish-now-btn').addEventListener('click', publishNow);
+      document.getElementById('connect-btn').addEventListener('click', connectWithInstagram);
+      document.getElementById('reconnect-btn').addEventListener('click', connectWithInstagram);
+    });
+  </script>
+</body>
+</html> 
